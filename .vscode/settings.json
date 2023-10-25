@@ -1,0 +1,18 @@
+{
+    "sqltools.connections": [
+        {
+            "namespace": "USER",
+            "connectionMethod": "Server and Port",
+            "showSystem": false,
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 52773,
+            "https": false,
+            "askForPassword": false,
+            "driver": "InterSystems IRIS",
+            "name": "localhost",
+            "username": "_SYSTEM",
+            "password": "2477"
+        }
+    ]
+}

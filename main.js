@@ -97,7 +97,7 @@ function CreateSurfaceData()
 
 
     for(let u=0; u<=5*Math.PI*100; u+=20){
-        for(let v=0; v<=2*Math.PI*100; v+=10){  
+        for(let v=0; v<=2*Math.PI*100; v+=20){  
             let x = (Math.E**(m*u/100)+ (Math.E**(p*u/100))*Math.cos(v/100))*Math.cos(u/100)
             let y = (Math.E**(m*u/100)+ (Math.E**(p*u/100))*Math.cos(v/100))*Math.sin(u/100)
             let z = (Math.E**(p*u/100))*Math.sin(v/100)
@@ -107,7 +107,7 @@ function CreateSurfaceData()
     }
 
     for(let v=0; v<=2*Math.PI*100; v+=20){
-        for(let u=0; u<=5*Math.PI*100; u+=10){  
+        for(let u=0; u<=5*Math.PI*100; u+=20){  
             let x = (Math.E**(m*u/100)+ (Math.E**(p*u/100))*Math.cos(v/100))*Math.cos(u/100)
             let y = (Math.E**(m*u/100)+ (Math.E**(p*u/100))*Math.cos(v/100))*Math.sin(u/100)
             let z = (Math.E**(p*u/100))*Math.sin(v/100)
