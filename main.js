@@ -29,9 +29,27 @@ function Model(name) {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.iVertexBuffer);
         gl.vertexAttribPointer(shProgram.iAttribVertex, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(shProgram.iAttribVertex);
-   
 
-        gl.drawArrays(gl.LINE_STRIP, 0, this.count);
+        let u_limit = 5*Math.PI*100;
+        let v_limit = 2*Math.PI*100;
+        let u_step = 20;
+        let v_step = 20;
+        let u_count = Math.round(u_limit/u_step);
+        let v_count = Math.round(v_limit/v_step)+1;
+
+        // draw u lines
+        for(let u=0; u<=u_count; u++){
+            gl.drawArrays(gl.LINE_STRIP, u*v_count, v_count);
+        }
+
+        // draw v lines
+        let offset = u_count*v_count;
+        for(let v=0; v<=v_count; v++){
+            let start = (v * u_count) + offset;
+            let end = u_count;
+            gl.drawArrays(gl.LINE_STRIP, start, end);
+        }
+
 
     }
 }
