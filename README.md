@@ -3,4 +3,4 @@
 <h3>Practical assignment #2 </h3>
 <h4>"Cornucopia"</h4>
 
-[Animation](./Animation.gif)
+[Animation](https://github.com/MaxZastupailo/VGGI_Labs/blob/PA2/Animation.gif)
