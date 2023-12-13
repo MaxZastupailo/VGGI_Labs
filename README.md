@@ -1,1 +1,6 @@
-![image info](./images/PA1.png)
+# <h1> WebGL </h1>
+<h2> Zastupailo Maxym</h2>
+<h3>Practical assignment #2 </h3>
+<h4>"Cornucopia"</h4>
+
+[Animation](./Animation.gif)
