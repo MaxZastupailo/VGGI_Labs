@@ -26,7 +26,6 @@ let World_Z = 0;
 let CameraPosition = [0, 0, -10];
 let WorldOrigin = [0, 0, 0];
 let LightPosition = [0, 0, 5];
-let ModelRadius = 1;
 let isAnimating = false;
 let fps = 60;
 let reqAnim;
@@ -53,8 +52,9 @@ function ExecuteAnimation() {
         return;
     }
     let deltaTime = 1000 / fps;
-    LightPosition[0] = Math.sin(currentAnimationTime / 500) * 2 * ModelRadius * GetNormalizedAnimVelocity()[0];
-    LightPosition[1] = Math.sin(currentAnimationTime / 500) * 2 * ModelRadius * GetNormalizedAnimVelocity()[1];
+    
+    LightPosition[0] = Math.sin(currentAnimationTime / 500) * 10 * (ModelP) * GetNormalizedAnimVelocity()[0];
+    LightPosition[1] = Math.sin(currentAnimationTime / 500) * 10 * (ModelP) * GetNormalizedAnimVelocity()[1];
 
     BuildLine();
     draw();
@@ -318,7 +318,7 @@ function SetupSegment() {
 
 function BuildSegment() {
     segment = new Line("Segment", segmentProgram);
-    segment.BufferData([...m4.scaleVector(GetNormalizedAnimVelocity(), -ModelRadius * 0.95), ...m4.scaleVector(GetNormalizedAnimVelocity(), ModelRadius * 0.95)]);
+    segment.BufferData([...m4.scaleVector(GetNormalizedAnimVelocity(), -(ModelP) * 5), ...m4.scaleVector(GetNormalizedAnimVelocity(), (ModelP) * 5)]);
     segment.position = m4.translation(0, 2, 0);
 }
 
