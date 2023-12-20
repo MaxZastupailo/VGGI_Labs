@@ -19,6 +19,7 @@ uniform vec3 LightDirection;
 uniform vec3 CamWorldPosition;
 
 varying vec3 fragNormal;
+varying vec3 fragVertex;
 varying vec3 fragLightDir;
 varying vec3 fragCamViewDir;
 
@@ -26,14 +27,14 @@ void main() {
     vec3 normalInterp = (WorldInverseTranspose * vec4(normalize(normal), 0.0)).xyz;
     vec3 N = normalize(normalInterp);
     vec3 L = normalize(LightDirection);
-    gl_Position = ModelViewProjectionMatrix * vec4(vertex,1.0);
+    vec3 V = normalize(CamWorldPosition - vertex);
 
-    vec3 reflectLighDir = normalize(reflect(L, N)); 
-    vec3 camViewDir = normalize(CamWorldPosition - vertex);
+    gl_Position = ModelViewProjectionMatrix * vec4(vertex, 1.0);
 
     fragNormal = N;
+    fragVertex = vertex;
     fragLightDir = L;
-    fragCamViewDir = camViewDir;
+    fragCamViewDir = V;
 }`;
 
 // Fragment shader
@@ -45,6 +46,7 @@ const fragmentShaderSource = `
 #endif
 
 varying vec3 fragNormal;
+varying vec3 fragVertex;
 varying vec3 fragLightDir;
 varying vec3 fragCamViewDir;
 
@@ -63,11 +65,34 @@ void main() {
     vec3 V = normalize(fragCamViewDir);
 
     vec3 reflectLighDir = normalize(reflect(-L, N));
-
+    
     vec3 ambient = matAmbientColor * lsAmbientColor;
-    vec3 diffuse = matDiffuseColor * lsDiffuseColor * max(0.0, dot(N, -L));
+    vec3 diffuse = matDiffuseColor * lsDiffuseColor * max(0.0, dot(N, L));
     vec3 specular = matSpecularColor * lsSpecularColor * pow(max(0.0, dot(V, reflectLighDir)), matShininess);
 
-    vec3 color = ambient + diffuse + specular;
-    gl_FragColor = vec4(color, 1.0);
+    vec3 phongShading = ambient + diffuse + specular;
+    gl_FragColor = vec4(phongShading, 1.0);
+}`;
+
+// Vertex shader for lines
+const LineVertexShaderSource = `
+attribute vec3 vertex;
+uniform mat4 ModelViewProjectionMatrix;
+
+void main() {
+    gl_Position = ModelViewProjectionMatrix * vec4(vertex, 1.0);
+}`;
+
+// Fragment shader for lines
+const LineFragmentShaderSource = `
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+   precision highp float;
+#else
+   precision mediump float;
+#endif
+
+uniform vec4 color;
+
+void main() {
+    gl_FragColor = color;
 }`;

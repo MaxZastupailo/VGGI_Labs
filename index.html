@@ -19,7 +19,7 @@
 
 <body onload="init()">
 
-    <h2 class="m-3" style="text-align: center;">Zastupailo TR-31mp PA2</h2>
+    <h2 class="m-3" style="text-align: center;">Zastupailo TR-31mp PA3</h2>
 
 
     <div class="container mt-5">
@@ -38,8 +38,35 @@
                 <div id="canvas-holder">
                     <canvas class="rounded-1" width="1200" height="600" id="webglcanvas" style="background-color: teal"></canvas>
                 </div>
+                <button style="background-color: rgb(111, 186, 236);" onclick="SwitchAnimation()">Animation (Start/Stop)</button>
             </div>
             <div class="col">
+                
+
+                <div class="me-5">
+                    <label for="x_velocity" class="form-label">X Velocity</label>
+                        <span class="badge bg-primary" id="xvelocity_text">0</span>
+                    <input type="range" class="form-range" min="-1" max="1" step="0.1" id="x_velocity" value="0">
+                </div>
+
+                <div class="me-5">
+                    <label for="y_velocity" class="form-label">Y Velocity</label>
+                        <span class="badge bg-primary" id="yvelocity_text">1</span>
+                    <input type="range" class="form-range" min="-1" max="1" step="0.1" id="y_velocity" value="1">
+                </div>
+
+                <div class="form-check ms-1 mb-5">
+                    <input class="form-check-input" type="checkbox" value="" id="showPath" onclick="SwitchShowPath();">
+                    <label class="form-check-label" for="showPath">
+                        Show Path
+                    </label>
+                </div>
+                
+
+
+                <div class="mb-5"></div>
+
+
                 <div class="me-5">
                     <label for="p_value" class="form-label">P</label>
                         <span class="badge bg-primary" id="p_text">0,15</span>
@@ -87,6 +114,8 @@
     var input_sc = document.getElementById("scale");
     var input_p = document.getElementById("p_value");
     var input_m = document.getElementById("m_value");
+    var input_xv = document.getElementById("x_velocity");
+    var input_yv = document.getElementById("y_velocity");
 
 
     input_a.addEventListener("input", function() {
@@ -119,6 +148,20 @@
     input_sc.addEventListener("input", function() {
         scale = this.value;
         document.getElementById("scale_text").innerHTML = scale;
+        draw();
+    }, false);
+
+    input_xv.addEventListener("input", function() {
+        AnimationVelocity[0] = this.value;
+        document.getElementById("xvelocity_text").innerHTML = AnimationVelocity[0];
+        BuildSegment();
+        draw();
+    }, false);
+
+    input_yv.addEventListener("input", function() {
+        AnimationVelocity[1] = this.value;
+        document.getElementById("yvelocity_text").innerHTML = AnimationVelocity[1];
+        BuildSegment();
         draw();
     }, false);
 
