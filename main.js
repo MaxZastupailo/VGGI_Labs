@@ -100,7 +100,10 @@ class Model {
         this.name = name;
         this.iVertexBuffer = gl.createBuffer();
         this.iNormalBuffer = gl.createBuffer();
+        this.iTextureBuffer = gl.createBuffer();
+
         this.count = 0;
+        this.countTexture = 0;
     }
 
     BufferData(vertices, normals) {
@@ -111,6 +114,14 @@ class Model {
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STREAM_DRAW);
 
         this.count = vertices.length / 3;
+    }
+
+    this.TextureBufferData = function (textureCoords) {
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.iTextureBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STREAM_DRAW);
+
+        this.countTexture = textureCoords.length / 2;
     }
 
     Draw(projectionViewMatrix) {
@@ -144,6 +155,14 @@ class Model {
         gl.vertexAttribPointer(shProgram.iNormalVertex, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(shProgram.iNormalVertex);
 
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.iTextureBuffer);
+        gl.vertexAttribPointer(shProgram.iTextureCoords2D, 2, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(shProgram.iTextureCoords2D);
+
+        gl.uniform1i(shProgram.iTexture, 0);
+        gl.enable(gl.TEXTURE_2D);
+
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, this.count);
     }
 }
@@ -152,17 +171,25 @@ class ShaderProgram {
     constructor(name, program) {
         this.name = name;
         this.prog = program;
+
+        this.iSolidColor = -1;
         this.iAttribVertex = -1;
         this.iNormalVertex = -1;
+        this.iTextureCoords2D = -1;
+        this.iTexture = -1;
+
         this.iModelViewProjectionMatrix = -1;
         this.iWorldInverseTranspose = -1;
+
         this.iLSAmbientColor = -1;
         this.iLSDiffuseColor = -1;
         this.iLSSpecularColor = -1;
+
         this.iMatAmbientColor = -1;
         this.iMatDiffuseColor = -1;
         this.iMatSpecularColor = -1;
         this.iMatShininess = -1;
+
         this.iLightDirection = -1;
         this.iCamWorldPosition = -1;
     }
@@ -206,6 +233,7 @@ function GetDirLightDirection() {
 function CreateSurfaceData() {
     let vertexList = [];
     let normalsList = [];
+    let textureList = [];
     let uMax = Math.PI * 5;
     let uMin = 0;
     let vMax = Math.PI * 2;
@@ -213,17 +241,34 @@ function CreateSurfaceData() {
     let uStep = uMax / 50;
     let vStep = vMax / 50;
 
-    for (let phi = uMin; phi < uMax + uStep; phi += uStep) {
+    for (let u = uMin; u < uMax + uStep; u += uStep) {
         for (let v = vMin; v < vMax + vStep; v += vStep) {
-            let vert = CalculateCornucopiaPoint(phi, v);
-            let n1 = CalcAnalyticNormal(phi, v, vert);
-            let avert = CalculateCornucopiaPoint(phi + uStep, v);
-            let n2 = CalcAnalyticNormal(phi + uStep, v, avert);
-            let bvert = CalculateCornucopiaPoint(phi, v + vStep);
-            let n3 = CalcAnalyticNormal(phi, v + vStep, bvert);
-            let cvert = CalculateCornucopiaPoint(phi + uStep, v + vStep);
-            let n4 = CalcAnalyticNormal(phi + uStep, v + vStep, cvert);
+            let vert = CalculateCornucopiaPoint(u, v);
+            let n1 = CalcAnalyticNormal(u, v, vert);
+            let avert = CalculateCornucopiaPoint(u + uStep, v);
+            let n2 = CalcAnalyticNormal(u + uStep, v, avert);
+            let bvert = CalculateCornucopiaPoint(u, v + vStep);
+            let n3 = CalcAnalyticNormal(u, v + vStep, bvert);
+            let cvert = CalculateCornucopiaPoint(u + uStep, v + vStep);
+            let n4 = CalcAnalyticNormal(u + uStep, v + vStep, cvert);
 
+            let u1 = map(phi, 0, phiMax, 0, 1)
+            let v1 = map(v, 0, vMax, 0, 1)
+            textureList.push(u1, v1)
+            u1 = map(phi + phiStep, 0, phiMax, 0, 1)
+            textureList.push(u1, v1)
+            u1 = map(phi, 0, phiMax, 0, 1)
+            v1 = map(v + vStep, 0, vMax, 0, 1)
+            textureList.push(u1, v1)
+            u1 = map(phi + phiStep, 0, phiMax, 0, 1)
+            v1 = map(v, 0, vMax, 0, 1)
+            textureList.push(u1, v1)
+            v1 = map(v + vStep, 0, vMax, 0, 1)
+            textureList.push(u1, v1)
+            u1 = map(phi, 0, phiMax, 0, 1)
+            v1 = map(v + vStep, 0, vMax, 0, 1)
+            
+            textureList.push(u1, v1)
             vertexList.push(vert.x, vert.y, vert.z);
             normalsList.push(n1.x, n1.y, n1.z);
             vertexList.push(avert.x, avert.y, avert.z);
