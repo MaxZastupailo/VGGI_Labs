@@ -64,20 +64,19 @@ function ExecuteAnimation() {
     }, deltaTime);
 }
 
-class Line {
-    constructor(name, program) {
-        this.position = m4.translation(0, 0, 0);
-        this.name = name;
-        this.iLightDirectionLineBuffer = gl.createBuffer();
-        this.program = program;
-    }
+function Line(name, program) {
+    this.position = m4.translation(0, 0, 0);
+    this.name = name;
+    this.iLightDirectionLineBuffer = gl.createBuffer();
+    this.program = program;
 
-    BufferData(data) {
+
+    this.BufferData=function (data) {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.iLightDirectionLineBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STREAM_DRAW);
     }
 
-    Draw(projectionViewMatrix) {
+    this.Draw = function (projectionViewMatrix) {
         this.program.Use();
 
         gl.uniformMatrix4fv(this.program.iModelViewProjectionMatrix, false, m4.multiply(projectionViewMatrix, this.position));
@@ -95,18 +94,17 @@ function deg2rad(angle) {
     return angle * Math.PI / 180;
 }
 
-class Model {
-    constructor(name) {
-        this.name = name;
-        this.iVertexBuffer = gl.createBuffer();
-        this.iNormalBuffer = gl.createBuffer();
-        this.iTextureBuffer = gl.createBuffer();
+function Model(name) {
+    this.name = name;
+    this.iVertexBuffer = gl.createBuffer();
+    this.iNormalBuffer = gl.createBuffer();
+    this.iTextureBuffer = gl.createBuffer();
 
-        this.count = 0;
-        this.countTexture = 0;
-    }
+    this.count = 0;
+    this.countTexture = 0;
 
-    BufferData(vertices, normals) {
+
+    this.BufferData = function (vertices, normals) {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.iVertexBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STREAM_DRAW);
 
@@ -116,7 +114,7 @@ class Model {
         this.count = vertices.length / 3;
     }
 
-    this.TextureBufferData = function (textureCoords) {
+    this.TextureBufferData = function (textureCoords){
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.iTextureBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STREAM_DRAW);
@@ -124,7 +122,7 @@ class Model {
         this.countTexture = textureCoords.length / 2;
     }
 
-    Draw(projectionViewMatrix) {
+    this.Draw = function (projectionViewMatrix) {
         let rotation = spaceball.getViewMatrix();
         let translation = m4.translation(World_X, World_Y, World_Z);
         let modelMatrix = m4.multiply(translation, rotation);
@@ -267,7 +265,7 @@ function CreateSurfaceData() {
             textureList.push(u1, v1)
             u1 = map(phi, 0, phiMax, 0, 1)
             v1 = map(v + vStep, 0, vMax, 0, 1)
-            
+
             textureList.push(u1, v1)
             vertexList.push(vert.x, vert.y, vert.z);
             normalsList.push(n1.x, n1.y, n1.z);
@@ -285,7 +283,13 @@ function CreateSurfaceData() {
         }
     }
 
-    return [vertexList, normalsList];
+    return [vertexList, normalsList, textureList];
+}
+
+function map(val, f1, t1, f2, t2) {
+    let m;
+    m = (val - f1) * (t2 - f2) / (t1 - f1) + f2
+    return Math.min(Math.max(m, f2), t2);
 }
 
 function CalcAnalyticNormal(u, v, xyz) {
@@ -339,14 +343,16 @@ function CalculateCornucopiaPoint(u, v) {
 }
 
 function initGL() {
-    SetupSurface();
-    BuildSurface();
+    // SetupSurface();
+    // BuildSurface();
 
-    SetupLine();
-    BuildLine();
+    // SetupLine();
+    // BuildLine();
 
-    SetupSegment();
-    BuildSegment();
+    // SetupSegment();
+    // BuildSegment();
+
+    LoadTexture();
 
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
@@ -354,8 +360,10 @@ function initGL() {
 
 function SetupSegment() {
     let prog = createProgram(gl, LineVertexShaderSource, LineFragmentShaderSource);
+    
     segmentProgram = new ShaderProgram('Segment', prog);
     segmentProgram.Use();
+
     segmentProgram.iAttribVertex = gl.getAttribLocation(prog, "vertex");
     segmentProgram.iModelViewProjectionMatrix = gl.getUniformLocation(prog, "ModelViewProjectionMatrix");
     segmentProgram.iSolidColor = gl.getUniformLocation(prog, "color");
@@ -369,8 +377,10 @@ function BuildSegment() {
 
 function SetupLine() {
     let prog = createProgram(gl, LineVertexShaderSource, LineFragmentShaderSource);
+    
     lineProgram = new ShaderProgram('Line', prog);
     lineProgram.Use();
+    
     lineProgram.iAttribVertex = gl.getAttribLocation(prog, "vertex");
     lineProgram.iModelViewProjectionMatrix = gl.getUniformLocation(prog, "ModelViewProjectionMatrix");
     lineProgram.iSolidColor = gl.getUniformLocation(prog, "color");
@@ -395,6 +405,8 @@ function SetupSurface(){
     shProgram.Use();
 
     shProgram.iAttribVertex = gl.getAttribLocation(prog, "vertex");
+    shProgram.iTextureCoords2D = gl.getAttribLocation(prog, "textureCoord");
+
     shProgram.iNormalVertex = gl.getAttribLocation(prog, "normal");
 
     shProgram.iWorldInverseTranspose = gl.getUniformLocation(prog, "WorldInverseTranspose");
@@ -411,7 +423,11 @@ function SetupSurface(){
 
     shProgram.iLightDirection = gl.getUniformLocation(prog, "LightDirection");
     shProgram.iCamWorldPosition = gl.getUniformLocation(prog, "CamWorldPosition");
+
+    shProgram.iTexture = gl.getUniformLocation(prog, "texture"); 
+
 }
+
 
 
 /* Creates a program for use in the WebGL context gl, and returns the
@@ -485,7 +501,7 @@ function init() {
         return false;
     };
 
-    draw();
+    // draw();
 }
 
 window.addEventListener("keydown", function (event) {
@@ -535,3 +551,41 @@ window.addEventListener("keydown", function (event) {
 
     }
 });
+
+
+let isLoadedTexture = false;
+
+function LoadTexture() {
+    let texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+    const image = new Image();
+    image.crossOrigin = 'anonymus';
+
+    image.src = "https://github.com/MaxZastupailo/VGGI_Labs/assets/66183706/b8b952bc-1078-45e0-b76b-c7c276fb2c4d";
+    image.onload = () => {
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(
+            gl.TEXTURE_2D,
+            0,
+            gl.RGBA,
+            gl.RGBA,
+            gl.UNSIGNED_BYTE,
+            image
+        );
+
+        SetupSurface();
+        BuildSurface();
+    
+        SetupLine();
+        BuildLine();
+    
+        SetupSegment();
+        BuildSegment();
+
+
+        draw()
+    }
+}
