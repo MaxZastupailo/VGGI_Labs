@@ -4,7 +4,6 @@ let gl; // The webgl context.
 let surface; // A surface model
 let shProgram; // A shader program
 let spaceball; // A SimpleRotator object that lets the user rotate the view by mouse.
-
 let lineProgram;
 let line;
 let segment;
@@ -22,10 +21,12 @@ let LightIntensity = 1;
 let World_X = 0;
 let World_Y = 0;
 let World_Z = 0;
-
 let CameraPosition = [0, 0, -10];
+
 let WorldOrigin = [0, 0, 0];
+
 let LightPosition = [0, 0, 5];
+
 let isAnimating = false;
 let fps = 60;
 let reqAnim;
@@ -35,6 +36,7 @@ let AnimationVelocity = [1, 1, 0];
 let ShowPath = false;
 
 function SwitchAnimation() {
+
     isAnimating = !isAnimating;
     if (!isAnimating) {
         window.cancelAnimationFrame(reqAnim);
@@ -53,8 +55,11 @@ function ExecuteAnimation() {
     }
     let deltaTime = 1000 / fps;
     
-    LightPosition[0] = Math.sin(currentAnimationTime / 500) * 10 * (ModelP) * GetNormalizedAnimVelocity()[0];
-    LightPosition[1] = Math.sin(currentAnimationTime / 500) * 10 * (ModelP) * GetNormalizedAnimVelocity()[1];
+    // LightPosition[0] = Math.sin(currentAnimationTime / 500) * 10 * (ModelP) * GetNormalizedAnimVelocity()[0];
+    // LightPosition[1] = Math.sin(currentAnimationTime / 500) * 10 * (ModelP) * GetNormalizedAnimVelocity()[1];
+
+    LightPosition[0] = (Math.sin(currentAnimationTime / 500) * 2 * 1 * GetNormalizedAnimVelocity()[0]);
+    LightPosition[1] = (Math.sin(currentAnimationTime / 500) * 2 * 1 * GetNormalizedAnimVelocity()[1]);
 
     BuildLine();
     draw();
@@ -62,6 +67,10 @@ function ExecuteAnimation() {
     setTimeout(() => {
         reqAnim = window.requestAnimationFrame(ExecuteAnimation);
     }, deltaTime);
+}
+
+function deg2rad(angle) {
+    return angle * Math.PI / 180;
 }
 
 function Line(name, program) {
@@ -90,9 +99,7 @@ function Line(name, program) {
     }
 }
 
-function deg2rad(angle) {
-    return angle * Math.PI / 180;
-}
+
 
 function Model(name) {
     this.name = name;
@@ -165,34 +172,34 @@ function Model(name) {
     }
 }
 
-class ShaderProgram {
-    constructor(name, program) {
-        this.name = name;
-        this.prog = program;
+function ShaderProgram(name, program){
 
-        this.iSolidColor = -1;
-        this.iAttribVertex = -1;
-        this.iNormalVertex = -1;
-        this.iTextureCoords2D = -1;
-        this.iTexture = -1;
+    this.name = name;
+    this.prog = program;
 
-        this.iModelViewProjectionMatrix = -1;
-        this.iWorldInverseTranspose = -1;
+    this.iSolidColor = -1;
+    this.iAttribVertex = -1;
+    this.iNormalVertex = -1;
+    this.iTextureCoords2D = -1;
+    this.iTexture = -1;
 
-        this.iLSAmbientColor = -1;
-        this.iLSDiffuseColor = -1;
-        this.iLSSpecularColor = -1;
+    this.iModelViewProjectionMatrix = -1;
+    this.iWorldInverseTranspose = -1;
 
-        this.iMatAmbientColor = -1;
-        this.iMatDiffuseColor = -1;
-        this.iMatSpecularColor = -1;
-        this.iMatShininess = -1;
+    this.iLSAmbientColor = -1;
+    this.iLSDiffuseColor = -1;
+    this.iLSSpecularColor = -1;
 
-        this.iLightDirection = -1;
-        this.iCamWorldPosition = -1;
-    }
+    this.iMatAmbientColor = -1;
+    this.iMatDiffuseColor = -1;
+    this.iMatSpecularColor = -1;
+    this.iMatShininess = -1;
 
-    Use() {
+    this.iLightDirection = -1;
+    this.iCamWorldPosition = -1;
+
+
+    this.Use = function () {
         gl.useProgram(this.prog);
     }
 }
@@ -228,6 +235,7 @@ function GetDirLightDirection() {
     return test;
 }
 
+
 function CreateSurfaceData() {
     let vertexList = [];
     let normalsList = [];
@@ -250,23 +258,23 @@ function CreateSurfaceData() {
             let cvert = CalculateCornucopiaPoint(u + uStep, v + vStep);
             let n4 = CalcAnalyticNormal(u + uStep, v + vStep, cvert);
 
-            let u1 = map(phi, 0, phiMax, 0, 1)
+            let u1 = map(u, 0, uMax, 0, 1)
             let v1 = map(v, 0, vMax, 0, 1)
             textureList.push(u1, v1)
-            u1 = map(phi + phiStep, 0, phiMax, 0, 1)
+            u1 = map(u + uStep, 0, uMax, 0, 1)
             textureList.push(u1, v1)
-            u1 = map(phi, 0, phiMax, 0, 1)
+            u1 = map(u, 0, uMax, 0, 1)
             v1 = map(v + vStep, 0, vMax, 0, 1)
             textureList.push(u1, v1)
-            u1 = map(phi + phiStep, 0, phiMax, 0, 1)
+            u1 = map(u + uStep, 0, uMax, 0, 1)
             v1 = map(v, 0, vMax, 0, 1)
             textureList.push(u1, v1)
             v1 = map(v + vStep, 0, vMax, 0, 1)
             textureList.push(u1, v1)
-            u1 = map(phi, 0, phiMax, 0, 1)
+            u1 = map(u, 0, uMax, 0, 1)
             v1 = map(v + vStep, 0, vMax, 0, 1)
-
             textureList.push(u1, v1)
+
             vertexList.push(vert.x, vert.y, vert.z);
             normalsList.push(n1.x, n1.y, n1.z);
             vertexList.push(avert.x, avert.y, avert.z);
@@ -324,6 +332,7 @@ function CalcDerivativeU(u, v, DeltaU, xyz) {
 
 function CalcDerivativeV(u, v, DeltaV, xyz) {
     let Dxyz = CalculateCornucopiaPoint(u, v + DeltaV);
+    
     let Dxdv = (Dxyz.x - xyz.x) / deg2rad(DeltaV);
     let Dydv = (Dxyz.y - xyz.y) / deg2rad(DeltaV);
     let Dzdv = (Dxyz.z - xyz.z) / deg2rad(DeltaV);
@@ -395,6 +404,7 @@ function BuildSurface(){
     surface = new Model('Surface');
     let data = CreateSurfaceData();
     surface.BufferData(data[0], data[1]);
+    surface.TextureBufferData(data[2]);
 }
 
 function SetupSurface(){
@@ -422,10 +432,9 @@ function SetupSurface(){
     shProgram.iLSSpecularColor = gl.getUniformLocation(prog, "lsSpecularColor");
 
     shProgram.iLightDirection = gl.getUniformLocation(prog, "LightDirection");
-    shProgram.iCamWorldPosition = gl.getUniformLocation(prog, "CamWorldPosition");
+    shProgram.iCamWorldPosition = gl.getUniformLocation(prog, "CamWorldPosition"); 
 
     shProgram.iTexture = gl.getUniformLocation(prog, "texture"); 
-
 }
 
 
@@ -564,7 +573,7 @@ function LoadTexture() {
     const image = new Image();
     image.crossOrigin = 'anonymus';
 
-    image.src = "https://github.com/MaxZastupailo/VGGI_Labs/assets/66183706/b8b952bc-1078-45e0-b76b-c7c276fb2c4d";
+    image.src = "https://raw.githubusercontent.com/Sykess3/WebGL-basics/CGW/texture.jpg";
     image.onload = () => {
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texImage2D(

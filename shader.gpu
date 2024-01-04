@@ -1,4 +1,3 @@
-
 // Vertex shader
 const vertexShaderSource = `
 attribute vec3 vertex;
@@ -20,7 +19,7 @@ uniform vec3 lsSpecularColor;
 uniform vec3 LightDirection;
 uniform vec3 CamWorldPosition;
 
-vvarying vec4 color;
+varying vec4 color;
 varying vec2 v_texcoord;
 
 void main() {
@@ -41,6 +40,7 @@ void main() {
     v_texcoord = vec2(textureCoord);
 }`;
 
+
 // Fragment shader
 const fragmentShaderSource = `
 #ifdef GL_FRAGMENT_PRECISION_HIGH
@@ -56,6 +56,7 @@ void main() {
     gl_FragColor = texture2D(texture, v_texcoord);
     //gl_FragColor = vec4(1,1,1,1);
 }`;
+
 
 
 
