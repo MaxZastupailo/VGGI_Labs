@@ -41,6 +41,12 @@
                 <button style="background-color: rgb(111, 186, 236);" onclick="SwitchAnimation()">Animation (Start/Stop)</button>
             </div>
             <div class="col">
+
+                <div class="me-5">
+                    <label for="tRotation" class="form-label">Texure Rotation</label>
+                        <span class="badge bg-primary" id="tRotation_text">0</span>
+                    <input type="range" class="form-range" min="0" max="180" step="1" id="tRotation" value="0">
+
                 
 
                 <div class="me-5">
@@ -76,6 +82,7 @@
                         <span class="badge bg-primary" id="m_text">0,1</span>
                     <input type="range" class="form-range" min="0" max="1" step="0.05" id="m_value" value="0.1">
 
+                    
                     <div class="input-group mb-3">
                         <span class="input-group-text">Ambient Color</span>
                         <input id="AmbientColor" type="color" class="form-control h-auto d-inline-block" aria-describedby="AmbientColor" value="#191919">
@@ -107,6 +114,7 @@
 
 <script>
     var input_a = document.getElementById("AmbientColor");
+    var input_ts = document.getElementById("tRotation");
     var input_d = document.getElementById("DiffuseColor");
     var input_s = document.getElementById("SpecularColor");
     var input_li = document.getElementById("LightIntensity");
@@ -120,6 +128,12 @@
 
     input_a.addEventListener("input", function() {
         AmbientColor = [hexToRgb(this.value).r / 255, hexToRgb(this.value).g / 255, hexToRgb(this.value).b / 255];
+        draw();
+    }, false);
+
+    input_ts.addEventListener("input", function() {
+        rotateValue = this.value;
+        document.getElementById("tRotation_text").innerHTML = this.value;
         draw();
     }, false);
 

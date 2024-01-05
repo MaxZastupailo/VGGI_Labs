@@ -22,6 +22,7 @@ let World_X = 0;
 let World_Y = 0;
 let World_Z = 0;
 let CameraPosition = [0, 0, -10];
+let texturePoint = [0, 0]
 
 let WorldOrigin = [0, 0, 0];
 
@@ -34,6 +35,7 @@ let currentAnimationTime = 0;
 let animationSpeed = 0;
 let AnimationVelocity = [1, 1, 0];
 let ShowPath = false;
+let rotateValue = 0;
 
 function SwitchAnimation() {
 
@@ -55,11 +57,8 @@ function ExecuteAnimation() {
     }
     let deltaTime = 1000 / fps;
     
-    // LightPosition[0] = Math.sin(currentAnimationTime / 500) * 10 * (ModelP) * GetNormalizedAnimVelocity()[0];
-    // LightPosition[1] = Math.sin(currentAnimationTime / 500) * 10 * (ModelP) * GetNormalizedAnimVelocity()[1];
-
-    LightPosition[0] = (Math.sin(currentAnimationTime / 500) * 2 * 1 * GetNormalizedAnimVelocity()[0]);
-    LightPosition[1] = (Math.sin(currentAnimationTime / 500) * 2 * 1 * GetNormalizedAnimVelocity()[1]);
+    LightPosition[0] = Math.sin(currentAnimationTime / 500) * 10 * (ModelP) * GetNormalizedAnimVelocity()[0];
+    LightPosition[1] = Math.sin(currentAnimationTime / 500) * 10 * (ModelP) * GetNormalizedAnimVelocity()[1];
 
     BuildLine();
     draw();
@@ -112,6 +111,7 @@ function Model(name) {
 
 
     this.BufferData = function (vertices, normals) {
+
         gl.bindBuffer(gl.ARRAY_BUFFER, this.iVertexBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STREAM_DRAW);
 
@@ -131,8 +131,11 @@ function Model(name) {
 
     this.Draw = function (projectionViewMatrix) {
         let rotation = spaceball.getViewMatrix();
+
         let translation = m4.translation(World_X, World_Y, World_Z);
+
         let modelMatrix = m4.multiply(translation, rotation);
+
         let modelViewProjection = m4.multiply(projectionViewMatrix, modelMatrix);
 
         var worldInverseMatrix = m4.inverse(modelMatrix);
@@ -152,6 +155,12 @@ function Model(name) {
         gl.uniform3fv(shProgram.iCamWorldPosition, CameraPosition);
         gl.uniform3fv(shProgram.iLightDirection, GetDirLightDirection());
 
+        gl.uniform2fv(shProgram.iRotationPoint, texturePoint);
+
+        let point = CalculateCornucopiaPoint(map(texturePoint[0], 0, 1,uMin, uMax), map(texturePoint[1], 0, 1,vMin, vMax));
+        gl.uniform3fv(shProgram.iPointVizualizationPosition, [point.x, point.y, point.z]);
+        gl.uniform1f(shProgram.iRotationValue, rotateValue);
+        
         gl.bindBuffer(gl.ARRAY_BUFFER, this.iVertexBuffer);
         gl.vertexAttribPointer(shProgram.iAttribVertex, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(shProgram.iAttribVertex);
@@ -160,11 +169,9 @@ function Model(name) {
         gl.vertexAttribPointer(shProgram.iNormalVertex, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(shProgram.iNormalVertex);
 
-
         gl.bindBuffer(gl.ARRAY_BUFFER, this.iTextureBuffer);
         gl.vertexAttribPointer(shProgram.iTextureCoords2D, 2, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(shProgram.iTextureCoords2D);
-
         gl.uniform1i(shProgram.iTexture, 0);
         gl.enable(gl.TEXTURE_2D);
 
@@ -197,6 +204,10 @@ function ShaderProgram(name, program){
 
     this.iLightDirection = -1;
     this.iCamWorldPosition = -1;
+
+    this.iPointVizualizationPosition = -1;
+    this.iRotationPoint = -1;
+    this.iRotationValue = -1;
 
 
     this.Use = function () {
@@ -235,20 +246,21 @@ function GetDirLightDirection() {
     return test;
 }
 
+let uMax = Math.PI * 5;
+let uMin = 0;
+let vMax = Math.PI * 2;
+let vMin = 0;
 
 function CreateSurfaceData() {
     let vertexList = [];
     let normalsList = [];
     let textureList = [];
-    let uMax = Math.PI * 5;
-    let uMin = 0;
-    let vMax = Math.PI * 2;
-    let vMin = 0;
+
     let uStep = uMax / 50;
     let vStep = vMax / 50;
 
-    for (let u = uMin; u < uMax + uStep; u += uStep) {
-        for (let v = vMin; v < vMax + vStep; v += vStep) {
+    for (let u = uMin; u < uMax ; u += uStep) {
+        for (let v = vMin; v < vMax ; v += vStep) {
             let vert = CalculateCornucopiaPoint(u, v);
             let n1 = CalcAnalyticNormal(u, v, vert);
             let avert = CalculateCornucopiaPoint(u + uStep, v);
@@ -352,14 +364,7 @@ function CalculateCornucopiaPoint(u, v) {
 }
 
 function initGL() {
-    // SetupSurface();
-    // BuildSurface();
 
-    // SetupLine();
-    // BuildLine();
-
-    // SetupSegment();
-    // BuildSegment();
 
     LoadTexture();
 
@@ -434,7 +439,10 @@ function SetupSurface(){
     shProgram.iLightDirection = gl.getUniformLocation(prog, "LightDirection");
     shProgram.iCamWorldPosition = gl.getUniformLocation(prog, "CamWorldPosition"); 
 
-    shProgram.iTexture = gl.getUniformLocation(prog, "texture"); 
+    shProgram.iTexture = gl.getUniformLocation(prog, "texture");
+    shProgram.iRotationPoint = gl.getUniformLocation(prog, "rotationPoint");
+    shProgram.iRotationValue = gl.getUniformLocation(prog, "rotationValue");
+    shProgram.iPointVizualizationPosition = gl.getUniformLocation(prog, "pointVizualizationPosition"); 
 }
 
 
@@ -513,54 +521,31 @@ function init() {
     // draw();
 }
 
-window.addEventListener("keydown", function (event) {
-    switch (event.key) {
-        case "ArrowLeft":
-        case "a":
-        case "A":
-            World_X -= 0.1;
-            draw();
+window.onkeydown = (e) => {
+    switch (e.keyCode) {
+        case 65:
+            texturePoint[0] += 0.015;
             break;
-        case "ArrowRight":
-        case "d":
-        case "D":
-            World_X += 0.1;
-            draw();
+        case 68:
+            texturePoint[0] -= 0.015;
             break;
-        case "ArrowDown":
-        case "s":
-        case "S":
-            World_Y -= 0.1;
-            draw();
+        case 87:
+            texturePoint[1] += 0.015;
             break;
-        case "ArrowUp":
-        case "w":
-        case "W":
-            World_Y += 0.1;
-            draw();
+        case 83:
+            texturePoint[1] -= 0.015;
             break;
-        case "+":
-            if (Shininess < 10) {
-                Shininess += 1;
-            }
-            draw();
-            document.getElementById("Shininess").value = Shininess;
-            document.getElementById("Shininess_text").innerHTML = Shininess;
-            break;
-        case "-":
-            if (Shininess > -10) {
-                Shininess -= 1;
-            }
-            draw();
-            document.getElementById("Shininess").value = Shininess;
-            document.getElementById("Shininess_text").innerHTML = Shininess;
-            break;
-        default:
-            return;
-
     }
-});
+    texturePoint[1] = Math.max(0.001, Math.min(texturePoint[1], 0.999))
 
+    if(texturePoint[0] >= 1){
+        texturePoint[0] = 0.001;
+    }
+    else if(texturePoint[0] <= 0){
+        texturePoint[0] = 0.99;
+    }
+    draw();
+}
 
 let isLoadedTexture = false;
 
