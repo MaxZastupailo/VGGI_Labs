@@ -4,12 +4,13 @@
 <h4>"Cornucopia"</h4>
 
 
-![Animation](https://github.com/MaxZastupailo/VGGI_Labs/assets/66183706/263b2a7d-c65d-4641-9e97-60bb836ba004)
 
 
 
 
-![texture](https://github.com/MaxZastupailo/VGGI_Labs/assets/66183706/0dad801e-b786-4f7f-b014-9d2f577750e2)
+
+![texture](https://github.com/MaxZastupailo/VGGI_Labs/assets/66183706/8d64eaae-a191-4045-8ff9-bb67872c396c)
+
 
 
 
