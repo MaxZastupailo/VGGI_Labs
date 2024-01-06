@@ -524,16 +524,16 @@ function init() {
 window.onkeydown = (e) => {
     switch (e.keyCode) {
         case 65:
-            texturePoint[0] += 0.015;
+            texturePoint[0] += 0.01;
             break;
         case 68:
-            texturePoint[0] -= 0.015;
+            texturePoint[0] -= 0.01;
             break;
         case 87:
-            texturePoint[1] += 0.015;
+            texturePoint[1] += 0.01;
             break;
         case 83:
-            texturePoint[1] -= 0.015;
+            texturePoint[1] -= 0.01;
             break;
     }
     texturePoint[1] = Math.max(0.001, Math.min(texturePoint[1], 0.999))
